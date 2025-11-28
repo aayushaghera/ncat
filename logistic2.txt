@@ -1,0 +1,33 @@
+# STEP 1: Import Libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score
+
+# STEP 2: Load Dataset
+df = pd.read_csv("spam.csv")
+
+# STEP 3: Convert ham/spam → 0/1
+df['label'] = df['label'].map({'ham': 0, 'spam': 1})
+
+# STEP 4: Split Data
+X = df['text']
+y = df['label']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# STEP 5: Convert Text → TF-IDF
+vectorizer = TfidfVectorizer(stop_words='english')
+X_train_tf = vectorizer.fit_transform(X_train)
+X_test_tf = vectorizer.transform(X_test)
+
+# STEP 6: Train Naive Bayes Model
+model = MultinomialNB()
+model.fit(X_train_tf, y_train)
+
+# STEP 7: Predict & Accuracy
+y_pred = model.predict(X_test_tf)
+print("Accuracy:", accuracy_score(y_test, y_pred))
